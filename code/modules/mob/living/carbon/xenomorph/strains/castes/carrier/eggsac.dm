@@ -1,7 +1,7 @@
 /datum/xeno_strain/eggsac
 	name = CARRIER_EGGSAC
-	description = "In exchange for your ability to store huggers and place traps, you gain larger plasma stores, strong pheromones, and the ability to lay eggs by using your plasma stores. In addition, you can now carry twelve eggs at once and can place eggs one pace further than normal. \n\nYou can also place a small number of fragile eggs on normal weeds. These eggs have a lifetime of five minutes while you remain within 14 tiles. Or one minute if you leave this range."
-	flavor_description = "An egg is always an adventure; the next one may be different."
+	description = "Вы обмениваете возможность содержать лицехватов и ставить ловушки, получаете больше хранилище плазмы, усиленные феромоны и возможность откладывать яица, используя плазму. Вы сможете носить до 12-и яиц и ставить их на одну клетку дальше обычного. Также, вы можете устанавливать более хрупкие яица на траве, жизнь которых будет составлять до 5-и минут, если вы находитесь на расстоянии 14 клеток, или до 1-й минуты, если вы дальше."
+	flavor_description = "Яйцо - это как приключение, следующее может быть совсем другим."
 	icon_state_prefix = "Eggsac"
 
 	actions_to_remove = list(

@@ -1,7 +1,7 @@
 /datum/xeno_strain/steel_crest
 	name = DEFENDER_STEELCREST
-	description = "You trade your tail sweep and a small amount of your slash damage for slightly increased headbutt knockback and damage and the ability to slowly move and headbutt while fortified. Along with this, you gain a unique ability to accumulate damage, and use it to recover a slight amount of health and refresh your tail slam."
-	flavor_description = "This one, like my will, is indomitable. It will become my steel crest against all that defy me."
+	description = "Вы обмениваете размах хвостом и немного урона от когтей на немного увеличенные отталкивание и урон гребнем, а также возможность передвигаться и ударять гребнем в укреплении. Вы получите способность накапливать урон, чтобы излечить себя на небольшое количество здоровья и восстановить перезарядку удара хвостом."
+	flavor_description = "Она, как и моя воля, несгибаема. Она станет моим стальным гребнем против тех, кто осмеливается бросить мне вызов."
 	icon_state_prefix = "Steelcrest"
 
 	actions_to_remove = list(

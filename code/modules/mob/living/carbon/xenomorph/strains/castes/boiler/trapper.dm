@@ -1,7 +1,7 @@
 /datum/xeno_strain/trapper
 	name = BOILER_TRAPPER
-	description = "You trade your ability to bombard, lance, and dump your acid in order to gain some speed and the ability to create acid explosions and restrain enemies within them. With your longer-range vision, set up traps that immobilize your opponents and place acid mines which deal damage to enemies and barricades and reduce the cooldown of your trap deployment for every enemy hit. Finally, hit enemies with your Acid Shotgun ability which adds a stack of insight to empower the next trap you place once you reach a maximum of ten insight. A point-blank shot or a shot on a stunned target will instantly apply ten stacks."
-	flavor_description = "The battlefield is my canvas, this one, my painter. Melt them where they stand."
+	description = "Вы обмениваете способности Bombard, Acid Shroud и Spray Acid на дополнительную скорость, возможность создавать кислотные взрывы, а также создавать обездвиживающие ловушки. Используйте улучшенное дальнозоркое зрение, чтобы использовать способности на огромном расстоянии. Ваши кислотные мины наносят больше урона обездвиженным вашими ловушками противникам, уменьшают перезарядку ловушек за каждую жертву в взрыве, а также наносят урон барикадам. Используйте свой дробовик, попадание каждой дробинки которого даёт вам интуицию. Имея максимальное количество интуиции в 10 единиц, ваша следующая ловушка будет усилена. Попадание в упор или по обездвиженной цели даёт вам мгновенно 10 интуиции."
+	flavor_description = "Поле боя - мой холст, а она - мой художник. Расплавь их месте."
 
 	actions_to_remove = list(
 		/datum/action/xeno_action/activable/xeno_spit/bombard,

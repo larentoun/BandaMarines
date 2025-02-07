@@ -14,8 +14,8 @@
 
 /datum/xeno_strain/charger
 	name = CRUSHER_CHARGER
-	description = "In exchange for your shield, a little bit of your armor and damage, your slowdown resist from turrets, your influence under frenzy pheromones, your stomp no longer knocking down talls, and your ability to lock your direction, you gain a considerable amount of health, some speed, your stomp does extra damage when stomping over a grounded tall, and your charge is now manually-controlled and momentum-based; the further you go, the more damage and speed you will gain until you achieve maximum momentum, indicated by your roar. In addition, your armor is now directional, being the toughest on the front, weaker on the sides, and weakest from the back. In return, you gain an ability to tumble to pass through enemies and avoid enemy fire, and an ability to forcefully move enemies via ramming into them."
-	flavor_description = "Nothing stops this hive. This one will become both the immovable object and the unstoppable force."
+	description = "Вы обмениваете щит, немного брони и урона, сопротивление к замедлению от турелей, влияние феромонов безумия, возможность топота опрокидывать носителей и возможность смотреть в одну сторону на значительное увеличение здоровья, немного скорости, ваш топот будет наносить больше урона, а ваш рывок зависит от направления и моментума; чем дольше вы бежите в одну сторону, тем больше урона и скорости вы получите, пока не получите максимальное ускорение, которое указывается вашим рёвом. В дополнение, ваша броня теперь имеет направленный характер - наиболее укреплена впереди, слабее по сторнам, и очень слаба сзади. Вы получаете возможность делать уворот в сторону, и ваш разгон будет расталкивать противником на пути."
+	flavor_description = "Ничто не остановит этот улей. Она станет одновременно недвиживым объектом и неостановимой силой."
 
 	actions_to_remove = list(
 		/datum/action/xeno_action/activable/pounce/crusher_charge,

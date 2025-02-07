@@ -1,7 +1,7 @@
 /datum/xeno_strain/gardener
 	name = DRONE_GARDENER
-	description = "You trade your choice of resin secretions, your corrosive acid, and your ability to transfer plasma for a tiny bit of extra health regeneration on weeds and several new abilities, including the ability to plant hardier weeds, temporarily reinforce structures with your plasma, and to plant up to six potent resin fruits for your sisters by secreting your vital fluids at the cost of a bit of your health for each fruit you shape. You can use Resin Surge to speed up the growth of your fruits."
-	flavor_description = "The glory of gardening: hands in the weeds, head in the dark, heart with resin."
+	description = "Вы обмениваете возможности выбора постройки сооружений, передачи плазмы и кислоту на незначительно ускоренную регенерацию на траве и новые способности, такие как посадка усиленной травы, временное укрепление структур с помощью плазмы, а также посадить до 6-и мощных смоляных плодов для своих сестёр, выделяя свои жизненные жидкости малой ценой здоровья за каждый плод. Используйте Resin Surge, чтобы ускорить рост плодов."
+	flavor_description = "Великолепие садоводства: руки в траве, голова в темноте, сердце в смоле."
 
 	actions_to_remove = list(
 		/datum/action/xeno_action/activable/secrete_resin,

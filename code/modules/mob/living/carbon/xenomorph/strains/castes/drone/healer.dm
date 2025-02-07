@@ -1,7 +1,7 @@
 /datum/xeno_strain/healer
 	name = DRONE_HEALER
-	description = "You lose your choice of resin secretions, a chunk of your slash damage, and you will experience a slighty-increased difficulty in tackling hosts in exchange for strong pheromones, the ability to use a bit of your health to plant a maximum of three lesser resin fruits, and the ability to heal your sisters' wounds by secreting a regenerative resin salve by using your vital fluids and a fifth of your plasma. Be wary, this is a dangerous process; overexert yourself and you may exhaust yourself to unconsciousness, or die..."
-	flavor_description = "Divided we fall, united we win. We live for the hive, we die for the hive."
+	description = "Вы обмениваете возможность выбора структур, часть урона от когтей, ослабление обезоруживания носителей на сильные феромоны, возможность пожертвовать здоровьем для посадки до трёх слабых смоляных плодов, и возможность лечить сестёр, выделяя регенерирующую смоляную мазь ценой здоровья и одной пятой плазмы. Будьте осторожны, этот опасный процесс может истощить вас до потери сознания или смерти..."
+	flavor_description = "Разрозненными мы падём, едиными мы победим. Мы живём для улья, мы умираем за улей."
 	icon_state_prefix = "Healer"
 
 	actions_to_remove = list(
