@@ -1,27 +1,77 @@
 resin wall:
   nominative:
     one: смоляная стена
+    few:
+    many:
   genitive:
     one: смоляной стены
+    few:
+    many:
   dative:
     one: смоляной стене
+    few:
+    many:
   accusative:
     one: смоляную стену
+    few:
+    many:
   instrumental:
     one: смоляной стеной
+    few:
+    many:
   prepositional:
     one: смоляной стене
+    few:
+    many:
 
 thick resin wall:
   nominative:
     one: плотная смоляная стена
+    few:
+    many:
   genitive:
     one: плотной смоляной стены
+    few:
+    many:
   dative:
     one: плотной смоляной стене
+    few:
+    many:
   accusative:
     one: плотную смоляную стену
+    few:
+    many:
   instrumental:
     one: плотной смоляной стеной
+    few:
+    many:
   prepositional:
     one: плотной смоляной стене
+    few:
+    many:
+
+shifting resin wall:
+  nominative:
+    one:
+    few:
+    many:
+  genitive:
+    one:
+    few:
+    many:
+  dative:
+    one:
+    few:
+    many:
+  accusative:
+    one:
+    few:
+    many:
+  instrumental:
+    one:
+    few:
+    many:
+  prepositional:
+    one:
+    few:
+    many:
