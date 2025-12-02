@@ -34,6 +34,8 @@
 	SShttp.create_async_request(RUSTG_HTTP_METHOD_POST, endpoint, "", headers, CALLBACK(SScentral, PROC_REF(verify_in_discord_callback), player))
 
 /datum/controller/subsystem/central/proc/verify_in_discord_callback(client/player, datum/http_response/response)
+	if(!initialized)
+		return
 	if(response.errored || response.status_code != 201)
 		stack_trace("Failed to get discord verification token: HTTP status code [response.status_code] - [response.error]")
 		return

@@ -3,14 +3,22 @@ SUBSYSTEM_DEF(central)
 	var/list/discord_links = list()
 	flags = SS_NO_FIRE
 
+/datum/controller/subsystem/central/Initialize()
+	if(!CONFIG_GET(string/central_api_url))
+		return SS_INIT_NO_NEED
+	initialized = TRUE
+	return SS_INIT_SUCCESS
+
 /datum/controller/subsystem/central/stat_entry(msg)
 	if(!initialized)
 		msg = "OFFLINE"
 	else
 		msg = "[CONFIG_GET(string/server_type)]"
-	return ..()
+	return msg
 
 /datum/controller/subsystem/central/proc/get_player_discord_async(client/player)
+	if(!initialized)
+		return
 	var/endpoint = "[CONFIG_GET(string/central_api_url)]/players/ckey/[player.ckey]"
 
 	SShttp.create_async_request(RUSTG_HTTP_METHOD_GET, endpoint, "", list(), CALLBACK(src, PROC_REF(get_player_discord_callback), player))
