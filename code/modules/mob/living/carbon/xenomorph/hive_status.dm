@@ -98,6 +98,9 @@
 	var/list/list/hive_structures = list() //Stringref list of structures that have been built
 	var/list/list/hive_constructions = list() //Stringref list of structures that are being built
 
+	/// Lazylist of possible caste defines the hive disallows evolution to
+	var/list/blacklisted_castes = null
+
 	var/datum/hive_status_ui/hive_ui
 	var/datum/mark_menu_ui/mark_ui
 	var/datum/hive_faction_ui/faction_ui
@@ -221,11 +224,15 @@
 
 	var/list/castes_available = list()
 	for(var/datum/caste_datum/current_caste as anything in available_castes)
-		castes_available += declent_ru_initial(current_caste.caste_type, NOMINATIVE, current_caste.caste_type)
+		castes_available += declent_ru_initial(current_caste.caste_type, NOMINATIVE, current_caste.caste_type) //SS220 EDIT ADDICTION
+
+	castes_available -= blacklisted_castes
+	if(!length(castes_available))
+		return
 
 	var/castes = castes_available.Join(", ")
-	xeno_message(SPAN_XENOANNOUNCE("Улей теперь достаточно силён, чтобы поддержать: [castes]"))
-	xeno_maptext("Улей теперь может поддерживать: [castes]", "Улей укрепляется")
+	xeno_message(SPAN_XENOANNOUNCE("Улей теперь достаточно силён, чтобы поддержать: [castes]")) //SS220 EDIT ADDICTION
+	xeno_maptext("Улей теперь достаточно силён, чтобы поддержать: [castes]", "Улей укрепляется") //SS220 EDIT ADDICTION
 	evo_screech()
 
 /datum/hive_status/proc/evo_screech()
@@ -239,10 +246,10 @@
 		playsound_client(current_mob.client, get_sfx("evo_screech"), current_mob.loc, 70, "minor")
 
 		if(ishuman(current_mob))
-			to_chat(current_mob, SPAN_HIGHDANGER("You hear a distant screech and feel your insides freeze up...  something new is with you in this colony."))
+			to_chat(current_mob, SPAN_HIGHDANGER("Вы слышите отдалённый визг и чувствуете, как у вас внутри всё замерзает... что-то новое появилось в этой колонии."))
 
 		if(issynth(current_mob))
-			to_chat(current_mob, SPAN_HIGHDANGER("You hear the distant call of an unknown bioform, it sounds like they're informing others to change form. You begin to analyze and decrypt the strange vocalization."))
+			to_chat(current_mob, SPAN_HIGHDANGER("Вы слышите отдалённый зов неизвестной биоформы, похоже, они сообщают другим о смене формы. Вы начинаете анализировать и расшифровывать странные звуки."))
 
 /datum/hive_status/proc/setup_banned_allies()
 	banned_allies = DEFAULT_ALLY_BAN_LIST
@@ -471,7 +478,7 @@
 		list(XENO_CASTE_LARVA = 0, XENO_CASTE_QUEEN = 0),
 		list(XENO_CASTE_DRONE = 0, XENO_CASTE_RUNNER = 0, XENO_CASTE_SENTINEL = 0, XENO_CASTE_DEFENDER = 0),
 		list(XENO_CASTE_HIVELORD = 0, XENO_CASTE_BURROWER = 0, XENO_CASTE_CARRIER = 0, XENO_CASTE_LURKER = 0, XENO_CASTE_SPITTER = 0, XENO_CASTE_WARRIOR = 0),
-		list(XENO_CASTE_BOILER = 0, XENO_CASTE_CRUSHER = 0, XENO_CASTE_PRAETORIAN = 0, XENO_CASTE_RAVAGER = 0)
+		list(XENO_CASTE_BOILER = 0, XENO_CASTE_CRUSHER = 0, XENO_CASTE_PRAETORIAN = 0, XENO_CASTE_RAVAGER = 0, XENO_CASTE_DESPOILER = 0)
 	)
 
 	for(var/mob/living/carbon/xenomorph/xeno as anything in totalXenos)
@@ -493,7 +500,7 @@
 		list(XENO_CASTE_LARVA = "", XENO_CASTE_QUEEN = "", XENO_CASTE_PREDALIEN_LARVA = "", XENO_CASTE_HELLHOUND = ""),
 		list(XENO_CASTE_DRONE = "", XENO_CASTE_RUNNER = "", XENO_CASTE_SENTINEL = "", XENO_CASTE_DEFENDER = "", XENO_CASTE_PREDALIEN = ""),
 		list(XENO_CASTE_HIVELORD = "", XENO_CASTE_BURROWER = "", XENO_CASTE_CARRIER = "", XENO_CASTE_LURKER = "", XENO_CASTE_SPITTER = "", XENO_CASTE_WARRIOR = ""),
-		list(XENO_CASTE_BOILER = "", XENO_CASTE_CRUSHER = "", XENO_CASTE_PRAETORIAN = "", XENO_CASTE_RAVAGER = "")
+		list(XENO_CASTE_BOILER = "", XENO_CASTE_CRUSHER = "", XENO_CASTE_PRAETORIAN = "", XENO_CASTE_RAVAGER = "", XENO_CASTE_DESPOILER = "")
 	)
 
 	for(var/caste in GLOB.xeno_datum_list)
@@ -629,7 +636,7 @@
 	if(!C || C == hive_location)
 		return
 	var/area/A = get_area(C)
-	xeno_message(SPAN_XENOANNOUNCE("Королева назначила новое местоположение улья в: [A]."), 3, hivenumber)
+	xeno_message(SPAN_XENOANNOUNCE("Королева назначила новое местоположение улья в [A.declent_ru(PREPOSITIONAL)]."), 3, hivenumber) // SS220 EDIT ADDICTION
 	hive_location = C
 	hive_ui.update_hive_location()
 
@@ -796,14 +803,14 @@
 	for(var/mob/living/carbon/xenomorph/xeno as anything in totalXenos)
 		if(get_area(xeno) != hijacked_dropship && xeno.loc && is_ground_level(xeno.loc.z))
 			if(isfacehugger(xeno) || islesserdrone(xeno))
-				to_chat(xeno, SPAN_XENOANNOUNCE("Королева ушла без вас, и вы быстро находите укрытие, чтобы впасть в гибернацию, теряя связь с разумом улья."))
+				to_chat(xeno, SPAN_XENOANNOUNCE("Королева ушла без вас, вы быстро находите укрытие, чтобы впасть в спячку, теряя связь с разумом улья."))
 				qdel(xeno)
 				continue
 			if(xeno.hunter_data.hunted && !isqueen(xeno))
-				to_chat(xeno, SPAN_XENOANNOUNCE("Королева ушла без вас, отделив вас от её улья! Вы должны защищить себя от охотников за головами, преждче чем сможете впасть в гибернацию..."))
+				to_chat(xeno, SPAN_XENOANNOUNCE("Королева ушла без вас, из-за чего вы теряете связь с разумом улья! Вы должны защитить себя от охотника, прежде чем сможете впасть в спячку..."))
 				xeno.set_hive_and_update(XENO_HIVE_FORSAKEN)
 			else
-				to_chat(xeno, SPAN_XENOANNOUNCE("Королева ушла без вас, и вы быстро находите укрытие, чтобы впасть в гибернацию, теряя связь с разумом улья."))
+				to_chat(xeno, SPAN_XENOANNOUNCE("Королева ушла без вас, вы быстро находите укрытие, чтобы впасть в спячку, теряя связь с разумом улья."))
 				if(xeno.hauled_mob?.resolve())
 					xeno.release_haul(xeno.hauled_mob.resolve())
 				qdel(xeno)
@@ -858,8 +865,8 @@
 		qdel(new_xeno)
 		return FALSE
 
-	new_xeno.visible_message(SPAN_XENODANGER("A larva suddenly emerges from a dead husk!"),
-	SPAN_XENOANNOUNCE("The hive has no core! You manage to emerge from your old husk as a larva!"))
+	new_xeno.visible_message(SPAN_XENODANGER("Из кокона внезапно появляется грудолом!"),
+	SPAN_XENOANNOUNCE("У улья нет ядра! Вы сумели вырваться из своего старого кокона в виде грудолома!"))
 	msg_admin_niche("[key_name(new_xeno)] respawned at \a [spawning_turf]. [ADMIN_JMP(spawning_turf)]")
 	playsound(new_xeno, 'sound/effects/xeno_newlarva.ogg', 50, 1)
 	if(new_xeno.client?.prefs?.toggles_flashing & FLASH_POOLSPAWN)
@@ -896,11 +903,11 @@
 	if(!SSticker.mode.transfer_xeno(xeno_candidate, new_xeno))
 		qdel(new_xeno)
 		return FALSE
-	new_xeno.visible_message(SPAN_XENODANGER("A larva suddenly burrows out of \the [spawning_turf]!"),
-	SPAN_XENODANGER("You burrow out of \the [spawning_turf] and awaken from your slumber. For the Hive!"))
+	new_xeno.visible_message(SPAN_XENODANGER("Из [spawning_turf] внезапно появляется грудолом!"), // SS220 EDIT ADDICTION
+	SPAN_XENODANGER("Вы вырываетесь из [spawning_turf], пробуждаясь от спячки. Во имя улья!")) // SS220 EDIT ADDICTION
 	msg_admin_niche("[key_name(new_xeno)] burrowed out from \a [spawning_turf]. [ADMIN_JMP(spawning_turf)]")
 	playsound(new_xeno, 'sound/effects/xeno_newlarva.ogg', 50, 1)
-	to_chat(new_xeno, SPAN_XENOANNOUNCE("You are a xenomorph larva awakened from slumber!"))
+	to_chat(new_xeno, SPAN_XENOANNOUNCE("Вы - грудолом, пробудившийся от сна!"))
 	if(new_xeno.client)
 		if(new_xeno.client?.prefs?.toggles_flashing & FLASH_POOLSPAWN)
 			window_flash(new_xeno.client)
@@ -1013,7 +1020,7 @@
 /datum/hive_status/proc/spawn_as_hugger(mob/dead/observer/user, atom/A)
 	var/mob/living/carbon/xenomorph/facehugger/hugger = new /mob/living/carbon/xenomorph/facehugger(A.loc, null, hivenumber)
 	user.mind.transfer_to(hugger, TRUE)
-	hugger.visible_message(SPAN_XENODANGER("A facehugger suddenly emerges out of \the [A]!"), SPAN_XENODANGER("You emerge out of \the [A] and awaken from your slumber. For the Hive!"))
+	hugger.visible_message(SPAN_XENODANGER("Из [A] внезапно появляется лицехват!"), SPAN_XENODANGER("Вы вылезаете из [A] и пробуждаетесь от сна. Во имя улья!")) // SS220 EDIT ADDICTION
 	playsound(hugger, 'sound/effects/xeno_newlarva.ogg', 25, TRUE)
 	hugger.generate_name()
 	hugger.timeofdeath = user.timeofdeath // Keep old death time
@@ -1278,6 +1285,32 @@
 /datum/hive_status/yautja/can_delay_round_end(mob/living/carbon/xenomorph/xeno)
 	return FALSE
 
+/datum/hive_status/hunted
+	name = FACTION_XENOMORPH_HUNTED
+	reporting_id = "hunted"
+	hivenumber = XENO_HIVE_HUNTED
+
+	ui_color = "#135029"
+	dynamic_evolution = FALSE
+	allow_no_queen_actions = TRUE
+	allow_no_queen_evo = TRUE
+	allow_queen_evolve = FALSE
+	latejoin_burrowed = FALSE
+	tacmap_requires_queen_ovi = TRUE // No tacmap
+
+	need_round_end_check = TRUE
+
+	blacklisted_castes = list(
+		XENO_CASTE_DRONE,
+		XENO_CASTE_QUEEN,
+		XENO_CASTE_BURROWER,
+		XENO_CASTE_CARRIER,
+		XENO_CASTE_HIVELORD,
+	)
+
+/datum/hive_status/hunted/can_delay_round_end(mob/living/carbon/xenomorph/xeno)
+	return FALSE
+
 /datum/hive_status/mutated
 	name = FACTION_XENOMORPH_MUTATED
 	reporting_id = "mutated"
@@ -1380,7 +1413,7 @@
 	banned_allies = FACTION_LIST_XENOMORPH
 
 /datum/hive_status/corrupted/renegade/can_spawn_as_hugger(mob/dead/observer/user)
-	to_chat(user, SPAN_WARNING("The [name] cannot support facehuggers."))
+	to_chat(user, SPAN_WARNING("[name] не может иметь лицехватов."))
 	return FALSE
 
 /datum/hive_status/corrupted/renegade/proc/iff_protection_check(mob/living/carbon/xenomorph/xeno, mob/living/carbon/attempt_harm_mob)
@@ -1404,19 +1437,21 @@
 /datum/hive_status/corrupted/renegade/faction_is_ally(faction, ignore_queen_check = TRUE)
 	return ..()
 
-/datum/hive_status/proc/on_queen_death() //break alliances on queen's death
-	if(allow_no_queen_actions || living_xeno_queen)
-		return
+/datum/hive_status/proc/break_all_alliances()
 	var/broken_alliances = FALSE
 	for(var/faction in allies)
 		if(!allies[faction])
 			continue
 		change_stance(faction, FALSE)
 		broken_alliances = TRUE
+	return broken_alliances
 
+/datum/hive_status/proc/on_queen_death() //on queen's death
+	if(allow_no_queen_actions || living_xeno_queen)
+		return
 
-	if(broken_alliances)
-		xeno_message(SPAN_XENOANNOUNCE("With the death of the Queen, all alliances have been broken."), 3, hivenumber)
+	if(break_all_alliances())
+		xeno_message(SPAN_XENOANNOUNCE("Со смертью Королевы все союзы были разорваны."), 3, hivenumber)
 
 /datum/hive_status/proc/change_stance(faction, should_ally)
 	if(faction == name)
@@ -1429,9 +1464,9 @@
 
 	if(living_xeno_queen)
 		if(allies[faction])
-			xeno_message(SPAN_XENOANNOUNCE("Our Queen set up an alliance with [faction]!"), 3, hivenumber)
+			xeno_message(SPAN_XENOANNOUNCE("Наша Королева заключила союз с [faction]!"), 3, hivenumber) // SS220 EDIT ADDICTION
 		else
-			xeno_message(SPAN_XENOANNOUNCE("Our Queen broke the alliance with [faction]!"), 3, hivenumber)
+			xeno_message(SPAN_XENOANNOUNCE("Наша Королева разорвала союз с [faction]!"), 3, hivenumber) // SS220 EDIT ADDICTION
 
 	for(var/number in GLOB.hive_datum)
 		var/datum/hive_status/target_hive = GLOB.hive_datum[number]
@@ -1440,10 +1475,10 @@
 		if(!target_hive.living_xeno_queen && !target_hive.allow_no_queen_actions)
 			return
 		if(allies[faction])
-			xeno_message(SPAN_XENOANNOUNCE("We sense that [name] [living_xeno_queen ? "Queen " : ""]set up an alliance with us!"), 3, target_hive.hivenumber)
+			xeno_message(SPAN_XENOANNOUNCE("Мы чувствуем, что [name] заключает союз с нами[living_xeno_queen ? " волей их Королевы" : ""]!"), 3, target_hive.hivenumber) // SS220 EDIT ADDICTION
 			return
 
-		xeno_message(SPAN_XENOANNOUNCE("We sense that [name] [living_xeno_queen ? "Queen " : ""]broke the alliance with us!"), 3, target_hive.hivenumber)
+		xeno_message(SPAN_XENOANNOUNCE("Мы чувствуем, что [name] разрывает союз с нами[living_xeno_queen ? " волей их Королевы" : ""]!"), 3, target_hive.hivenumber) // SS220 EDIT ADDICTION
 		if(target_hive.allies[name]) //autobreak alliance on betrayal
 			target_hive.change_stance(name, FALSE)
 
@@ -1467,16 +1502,16 @@
 	addtimer(CALLBACK(src, PROC_REF(handle_defectors), faction), 11 SECONDS)
 
 /datum/hive_status/corrupted/proc/give_defection_choice(mob/living/carbon/xenomorph/xeno, faction)
-	if(tgui_alert(xeno, "Our Queen has broken the alliance with the [faction]. The device inside our carapace begins to suppress our connection with the Hive. Do we remove it and follow the Queen?", "Alliance broken!", list("Obey the Queen", "Obey the talls"), 10 SECONDS) == "Obey the talls")
+	if(tgui_alert(xeno, "Ваша Королева разорвала союз с [faction], а устройство внутри вашего тела подавляет связь с ульем. Последуете ли вы за волей Королевы и избавитесь от него?", "Союз разорван!", list("Повиноваться Королеве", "Повиноваться носителям"), 10 SECONDS) == "Повиноваться носителям")
 		if(!xeno.iff_tag)
-			to_chat(xeno, SPAN_XENOWARNING("It's too late now. The device is gone and our service to the Queen continues."))
+			to_chat(xeno, SPAN_XENOWARNING("Уже слишком поздно. Устройство извлечено, а наша служба Королеве продолжается."))
 			return
 		defectors += xeno
 		xeno.set_hive_and_update(XENO_HIVE_RENEGADE)
-		to_chat(xeno, SPAN_XENOANNOUNCE("You lost the connection with your Hive. Now you have no Queen, only your masters."))
-		to_chat(xeno, SPAN_NOTICE("Your instincts have changed, you seem compelled to protect [english_list(xeno.iff_tag.faction_groups, "no one")]."))
+		to_chat(xeno, SPAN_XENOANNOUNCE("Вы потеряли связь с ульем. Теперь у вас нет Королевы, только ваши хозяева."))
+		to_chat(xeno, SPAN_NOTICE("Ваши инстинкты изменились, вы чувствуете необходимость защищать [english_list(xeno.iff_tag.faction_groups, "no one")].")) // SS220 EDIT ADDICTION
 		return
-	xeno.visible_message(SPAN_XENOWARNING("[xeno] rips out [xeno.iff_tag]!"), SPAN_XENOWARNING("We rip out [xeno.iff_tag]! For the Hive!"))
+	xeno.visible_message(SPAN_XENOWARNING("[capitalize(xeno.declent_ru(NOMINATIVE))] вырывает [xeno.iff_tag.declent_ru(ACCUSATIVE)]!"), SPAN_XENOWARNING("Мы вырываем из своего тела [xeno.iff_tag]! Во имя улья!")) // SS220 EDIT ADDICTION
 	xeno.adjustBruteLoss(50)
 	xeno.iff_tag.forceMove(get_turf(xeno))
 	xeno.iff_tag = null
@@ -1489,23 +1524,23 @@
 			continue
 		if(!(faction in xeno.iff_tag.faction_groups))
 			continue
-		xeno.visible_message(SPAN_XENOWARNING("[xeno] rips out [xeno.iff_tag]!"), SPAN_XENOWARNING("We rip out [xeno.iff_tag]! For the hive!"))
+		xeno.visible_message(SPAN_XENOWARNING("[capitalize(xeno.declent_ru(NOMINATIVE))] вырывает [xeno.iff_tag.declent_ru(ACCUSATIVE)]!"), SPAN_XENOWARNING("Мы вырываем из своего тела [xeno.iff_tag]! Во имя улья!")) // SS220 EDIT ADDICTION
 		xeno.adjustBruteLoss(50)
 		xeno.iff_tag.forceMove(get_turf(xeno))
 		xeno.iff_tag = null
 	if(!length(defectors))
 		return
 
-	xeno_message(SPAN_XENOANNOUNCE("We sense that [english_list(defectors)] turned their backs against their sisters and the Queen in favor of their slavemasters!"), 3, hivenumber)
+	xeno_message(SPAN_XENOANNOUNCE("Мы чувствуем, что [english_list(defectors)] отвернулись от своих сестёр и Королевы в пользу своих хозяев!"), 3, hivenumber) // SS220 EDIT ADDICTION
 	if(faction == FACTION_MARINE && ares_can_interface())
-		marine_announcement("The advanced IFF Xenomorph tagging technology has detected hostile intentions and succesfully supressed the psychic link of [length(defectors)] lifeform\s. The collaborative lifeforms are given designation Renegades. Full cooperation is to be expected.", MAIN_AI_SYSTEM)
+		marine_announcement("Технология идентификации ксеноморфов зафиксировала враждебные намерения и успешно подавила их психическую связь с [length(defectors)] биоформами, которые получили обозначение «Отступники». Ожидается их безоговорочное подчинение.", MAIN_AI_SYSTEM)
 	defectors.Cut()
 
 /datum/hive_status/corrupted/proc/add_personal_ally(mob/living/ally)
 	personal_allies += WEAKREF(ally)
 	ally.status_flags |= CORRUPTED_ALLY
 	ally.med_hud_set_status()
-	xeno_message(SPAN_XENOANNOUNCE("Our Queen proclaimed [ally] our ally! We must not harm them."), 3, hivenumber)
+	xeno_message(SPAN_XENOANNOUNCE("Наша Королева объявила «[ally]» нашим союзником! Мы не должны причинять им вред."), 3, hivenumber) // SS220 EDIT ADDICTION
 
 /datum/hive_status/corrupted/proc/remove_personal_ally(datum/weakref/ally_ref)
 	personal_allies -= ally_ref
@@ -1513,7 +1548,7 @@
 	if(ally)
 		ally.status_flags &= ~CORRUPTED_ALLY
 		ally.med_hud_set_status()
-	xeno_message(SPAN_XENOANNOUNCE("Our Queen has declared that [ally] is no longer our ally!"), 3, hivenumber)
+	xeno_message(SPAN_XENOANNOUNCE("Наша Королева разорвала союз с «[ally]»!"), 3, hivenumber) // SS220 EDIT ADDICTION
 
 /datum/hive_status/corrupted/proc/clear_personal_allies(death = FALSE)
 	for(var/datum/weakref/ally_ref in personal_allies)
@@ -1524,9 +1559,9 @@
 		ally.med_hud_set_status()
 	personal_allies.Cut()
 	if(!death)
-		xeno_message(SPAN_XENOANNOUNCE("Our Queen has broken all personal alliances with the talls! Favoritism is no more."), 3, hivenumber)
+		xeno_message(SPAN_XENOANNOUNCE("Наша Королева разорвала все личные союзы с носителями! Покровительство больше не действует."), 3, hivenumber)
 		return
-	xeno_message(SPAN_XENOWARNING("With the death of the Queen, her friends no longer matter to us."), 3, hivenumber)
+	xeno_message(SPAN_XENOWARNING("Со смертью Королевы её друзья больше не имеют для нас значения."), 3, hivenumber)
 
 /datum/hive_status/corrupted/is_ally(mob/living/living_mob)
 	if(living_mob.status_flags & CORRUPTED_ALLY)
@@ -1607,7 +1642,7 @@
 /datum/xeno_mark_define
 	var/name = "xeno_declare"
 	var/icon_state = "empty"
-	var/desc = "Xenos make psychic markers with this meaning as positional lasting communication to eachother"
+	var/desc = "Xenos make psychic markers with this meaning as positional lasting communication to eachother."
 
 /datum/xeno_mark_define/fortify
 	name = "Укрепиться"
@@ -1662,4 +1697,3 @@
 	name = "Атака"
 	desc = "Атакуйте врага здесь!"
 	icon_state = "attack"
-

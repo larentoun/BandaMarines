@@ -39,6 +39,8 @@
 	var/hivenumber = XENO_HIVE_NORMAL
 	var/flags_embryo = NO_FLAGS
 	var/impregnated = FALSE
+	/// How many units of stims are drained upon hugging
+	var/stim_drain = 30
 
 	/// The timer for the hugger to jump
 	/// at the nearest human
@@ -54,20 +56,21 @@
 	var/death_timer
 
 	var/icon_xeno = 'icons/mob/xenos/effects.dmi'
-	var/icon_xenonid = 'icons/mob/xenonids/castes/tier_0/xenonid_crab.dmi'
+	var/icon_xenonid = 'icons/mob/xenos/effects_xenoids.dmi'
 
 /obj/item/clothing/mask/facehugger/Initialize(mapload, hive)
 	. = ..()
-	var/new_icon = icon_xeno
 	if (hive)
 		hivenumber = hive
-
 		var/datum/hive_status/hive_s = GLOB.hive_datum[hivenumber]
-		if(HAS_TRAIT(hive_s, TRAIT_XENONID))
-			new_icon = icon_xenonid
+		for(var/trait in hive_s.hive_inherant_traits)
+			ADD_TRAIT(src, trait, TRAIT_SOURCE_HIVE)
 
-	icon = new_icon
 	set_hive_data(src, hivenumber)
+	if(HAS_TRAIT(src, TRAIT_NO_COLOR))
+		color = null
+	if(HAS_TRAIT(src, TRAIT_XENONID))
+		icon = icon_xenonid
 	go_active()
 
 	if (hivenumber != XENO_HIVE_TUTORIAL)
@@ -109,7 +112,7 @@
 		if(F.stat == CONSCIOUS)
 			count++
 		if(count > 2) //Was 5, our rules got much tighter
-			visible_message(SPAN_XENOWARNING("The facehugger is furiously cannibalized by the nearby horde of other ones!"))
+			visible_message(SPAN_XENOWARNING("Лицехват яростно поедается ордой других лицехватов!"))
 			qdel(src)
 			return
 
@@ -126,7 +129,7 @@
 /obj/item/clothing/mask/facehugger/attack_alien(mob/living/carbon/xenomorph/user)
 	if(user.hivenumber != hivenumber)
 		user.animation_attack_on(src)
-		user.visible_message(SPAN_XENOWARNING("[user] crushes \the [src]"), SPAN_XENOWARNING("You crush \the [src]"))
+		user.visible_message(SPAN_XENOWARNING("[capitalize(user.declent_ru(NOMINATIVE))] раздавливает [declent_ru(ACCUSATIVE)]."), SPAN_XENOWARNING("Вы раздавливаете [declent_ru(ACCUSATIVE)]")) // SS220 EDIT ADDICTION
 		die()
 		return XENO_ATTACK_ACTION
 
@@ -315,6 +318,8 @@
 	if(!sterile)
 		if(!human.species || !(human.species.flags & IS_SYNTHETIC)) //synthetics aren't paralyzed
 			human.apply_effect(MIN_IMPREGNATION_TIME * 0.5 * knockout_mod, PARALYZE) //THIS MIGHT NEED TWEAKS
+			for(var/datum/reagent/generated/stim in human.reagents.reagent_list) // Banish them stims
+				human.reagents.remove_reagent(stim.id, stim_drain, TRUE)
 
 	var/area/hug_area = get_area(src)
 	var/name = hugger ? "[hugger]" : "\a [src]"
@@ -421,14 +426,14 @@
 			return
 		var/obj/effect/alien/resin/trap/T = locate() in loc
 		if(T && T.trap_type == RESIN_TRAP_EMPTY)
-			visible_message(SPAN_XENOWARNING("[src] crawls into [T]!"))
+			visible_message(SPAN_XENOWARNING("[capitalize(declent_ru(NOMINATIVE))] заползает в [T.declent_ru(ACCUSATIVE)]!")) // SS220 EDIT ADDICTION
 			T.hivenumber = hivenumber
 			T.set_state(RESIN_TRAP_HUGGER)
 			qdel(src)
 			return
 		var/obj/effect/alien/resin/special/eggmorph/M = locate() in loc
 		if(istype(M) && M.stored_huggers < M.huggers_max_amount)
-			visible_message(SPAN_XENOWARNING("[src] crawls back into [M]!"))
+			visible_message(SPAN_XENOWARNING("[capitalize(declent_ru(NOMINATIVE))] заползает обратно в [M.declent_ru(ACCUSATIVE)]!")) // SS220 EDIT ADDICTION
 			M.stored_huggers++
 			qdel(src)
 			return
@@ -503,7 +508,7 @@
 	die()
 
 /obj/item/clothing/mask/facehugger/proc/return_to_egg(obj/effect/alien/egg/E)
-	visible_message(SPAN_XENOWARNING("[src] crawls back into [E]!"))
+	visible_message(SPAN_XENOWARNING("[capitalize(declent_ru(NOMINATIVE))] заползает обратно в [E.declent_ru(ACCUSATIVE)]!")) // SS220 EDIT ADDICTION
 	E.status = EGG_GROWN
 	E.icon_state = "Egg"
 	E.deploy_egg_triggers()
@@ -572,7 +577,8 @@
 		else
 			visible_message(SPAN_DANGER("[hugger] smashes against [src]'s [W.name] and rips it off!"))
 			drop_inv_item_on_ground(W)
-
+	if(wear_mask)
+		drop_inv_item_on_ground(wear_mask) // drop any item from the face that wasn't handled above (e.g cigs, glasses)
 	return can_infect
 
 /datum/species/proc/handle_hugger_attachment(mob/living/carbon/human/target, obj/item/clothing/mask/facehugger/hugger, mob/living/carbon/xenomorph/facehugger/mob_hugger)

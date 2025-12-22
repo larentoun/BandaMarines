@@ -20,11 +20,18 @@
 	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
 	attack_speed = 9
 
+	shield_chance = SHIELD_CHANCE_LOW
+	shield_projectile_mult = PROJECTILE_BLOCK_PERC_NONE
+	shield_type = SHIELD_DIRECTIONAL
+	shield_sound = 'sound/items/parry.ogg'
+	shield_flags = CAN_SHIELD_BASH
+
 /obj/item/weapon/sword/claymore
 	name = "claymore"
 	desc = "What are you standing around staring at this for? Get to killing!"
 	icon_state = "claymore"
 	item_state = "claymore"
+	shield_chance = SHIELD_CHANCE_MED
 
 /obj/item/weapon/sword/ceremonial
 	name = "Ceremonial Sword"
@@ -61,6 +68,8 @@
 	icon_state = "arnold-machete"
 	item_state = "arnold-machete"
 	force = MELEE_FORCE_TIER_11
+	shield_chance = SHIELD_CHANCE_EXTRAHIGH
+	shield_projectile_mult = PROJECTILE_BLOCK_PERC_50
 
 /obj/item/weapon/sword/hefa
 	name = "HEFA sword"
@@ -68,6 +77,7 @@
 	item_state = "hefasword"
 	desc = "A blade known to be used by the Order of the HEFA, this highly dangerous blade blows up in a shower of shrapnel on impact."
 	attack_verb = list("bapped", "smacked", "clubbed")
+	shield_chance = SHIELD_CHANCE_MEDHIGH
 
 	var/primed = FALSE
 
@@ -109,6 +119,7 @@
 	icon_state = "katana"
 	item_state = "katana"
 	force = MELEE_FORCE_VERY_STRONG
+	shield_chance = SHIELD_CHANCE_EXTRAHIGH
 
 //To do: replace the toys.
 /obj/item/weapon/sword/katana/replica
@@ -116,6 +127,7 @@
 	desc = "A cheap knock-off commonly found in regular knife stores. Can still do some damage."
 	force = MELEE_FORCE_WEAK
 	throwforce = 7
+	shield_chance = SHIELD_CHANCE_MED
 
 /obj/item/weapon/sword/dragon_katana
 	name = "dragon katana"
@@ -168,15 +180,15 @@
 	if(user != embedded_human)
 		user.affected_message(embedded_human,
 			SPAN_NOTICE("You begin examining [embedded_human]'s body for shrapnel."),
-			SPAN_NOTICE("[user] begins to examine your body for shrapnel to dig out. Hold still, this will probably hurt..."),
-			SPAN_NOTICE("[user] begins to examine [embedded_human]'s body for shrapnel."))
+			SPAN_NOTICE("[capitalize(user.declent_ru(NOMINATIVE))] begins to examine your body for shrapnel to dig out. Hold still, this will probably hurt..."),
+			SPAN_NOTICE("[capitalize(user.declent_ru(NOMINATIVE))] begins to examine [embedded_human]'s body for shrapnel."))
 		address_mode = "out of [embedded_human]'s" //includes "out of " to prevent capital-T 'The unknown'.
 		if(!do_after(user, 20, INTERRUPT_ALL, BUSY_ICON_FRIENDLY, embedded_human, INTERRUPT_MOVED, BUSY_ICON_MEDICAL))
 			to_chat(user, SPAN_NOTICE("You were interrupted!"))
 			return
 	else
-		user.visible_message(SPAN_NOTICE("[user] starts checking \his body for shrapnel."),
-			SPAN_NOTICE("You begin searching your body for shrapnel."))
+		user.visible_message(SPAN_NOTICE("[capitalize(user.declent_ru(NOMINATIVE))] осматривает своё тело в поисках осколков."),
+			SPAN_NOTICE("Вы осматриваете своё тело в поисках осколков."))
 		address_mode = "out of your"
 		if(!do_after(embedded_human, 20, INTERRUPT_ALL, BUSY_ICON_FRIENDLY))
 			to_chat(user, SPAN_NOTICE("You were interrupted!"))
@@ -204,7 +216,7 @@
 		var/duglimbs = english_list(removed_limbs, final_comma_text = ",")
 		user.affected_message(embedded_human,
 			SPAN_NOTICE("You dig the shrapnel [address_mode] [duglimbs] with your [src.name]."),
-			SPAN_NOTICE("[user] digs the shrapnel out of your [duglimbs] with \his [src.name]."),
+			SPAN_NOTICE("[capitalize(user.declent_ru(NOMINATIVE))] digs the shrapnel out of your [duglimbs] with \his [src.name]."),
 			SPAN_NOTICE(user != embedded_human ? "[user] uses \his [src.name] to dig the shrapnel out of [embedded_human]'s [duglimbs]." : "[user] digs the shrapnel out of \his [duglimbs] with \his [src.name]."))
 
 		if(!embedded_human.stat && embedded_human.pain.feels_pain && embedded_human.pain.reduction_pain < PAIN_REDUCTION_HEAVY)
@@ -216,12 +228,12 @@
 		SEND_SIGNAL(embedded_human, COMSIG_HUMAN_SHRAPNEL_REMOVED)
 
 	else
-		to_chat(user, SPAN_NOTICE("You couldn't find any shrapnel."))
+		to_chat(user, SPAN_NOTICE("Вы не нашли осколков в своём теле."))
 
 // Demo and example of a 64x64 weapon.
 /obj/item/weapon/ritual
 	name = "cool knife"
-	desc = "It shines with awesome coding power"
+	desc = "It shines with awesome coding power."
 	icon_state = "dark_blade"
 	item_state = "dark_blade"
 	icon = 'icons/obj/items/weapons/melee/misc.dmi'
@@ -239,6 +251,11 @@
 		WEAR_L_HAND = 'icons/mob/humans/onmob/inhands/items/items_lefthand_64.dmi',
 		WEAR_R_HAND = 'icons/mob/humans/onmob/inhands/items/items_righthand_64.dmi'
 	)
+
+	shield_chance = 45
+	shield_projectile_mult = PROJECTILE_BLOCK_PERC_80
+	shield_type = SHIELD_DIRECTIONAL
+	shield_sound = 'sound/items/parry.ogg'
 
 /obj/item/weapon/straight_razor
 	name = "straight razor"
@@ -316,7 +333,7 @@
 
 /obj/item/weapon/straight_razor/verb/change_hair_style()
 	set name = "Change Hair Style"
-	set desc = "Change your hair style"
+	set desc = "Change your hair style."
 	set category = "Object"
 	set src in usr
 
@@ -378,4 +395,3 @@
 
 	human_user.apply_damage(rand(1,5), BRUTE, "head", src)
 	human_user.update_hair()
-

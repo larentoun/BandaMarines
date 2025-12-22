@@ -210,7 +210,7 @@
 				S.remove_from_storage(item_to_stock, user.loc)
 
 			qdel(item_to_stock)
-			user.visible_message(SPAN_NOTICE("[user] stocks [src] with \a [R[1]]."),
+			user.visible_message(SPAN_NOTICE("[capitalize(user.declent_ru(NOMINATIVE))] stocks [src] with \a [R[1]]."),
 			SPAN_NOTICE("You stock [src] with \a [R[1]]."))
 			R[2]++
 			if(vend_flags & VEND_LOAD_AMMO_BOXES)
@@ -364,7 +364,7 @@
 				S.remove_from_storage(item_to_stock, user.loc)
 
 			qdel(item_to_stock)
-			user.visible_message(SPAN_NOTICE("[user] stocks [src] with \a [R[1]]."),
+			user.visible_message(SPAN_NOTICE("[capitalize(user.declent_ru(NOMINATIVE))] stocks [src] with \a [R[1]]."),
 			SPAN_NOTICE("You stock [src] with \a [R[1]]."))
 			R[2]++
 			if(vend_flags & VEND_LOAD_AMMO_BOXES)
@@ -389,7 +389,7 @@
 //------------ATTACHMENTS VENDOR---------------
 
 /obj/structure/machinery/cm_vending/sorted/attachments
-	name = "\improper Armat Systems Attachments Vendor"
+	name = "\improper Armat Battlefield Systems Attachments Vendor"
 	desc = "An automated supply rack hooked up to a big storage of weapons attachments. Can be accessed by the Quartermaster and Cargo Technicians."
 	req_access = list(ACCESS_MARINE_CARGO)
 	vendor_theme = VENDOR_THEME_USCM
@@ -397,6 +397,10 @@
 	vend_dir = WEST
 	vend_dir_whitelist = list(SOUTHEAST, NORTHEAST)
 	vend_flags = VEND_CLUTTER_PROTECTION | VEND_LIMITED_INVENTORY | VEND_STOCK_DYNAMIC //We want to vend to turf not hand, since we are in requisitions
+
+/obj/structure/machinery/cm_vending/sorted/attachments/squad/Initialize()
+	. = ..()
+	AddElement(/datum/element/corp_label/armat)
 
 /obj/structure/machinery/cm_vending/sorted/attachments/vend_fail()
 	return
@@ -439,6 +443,7 @@
 		list("Underbarrel Extinguisher", 4.5, /obj/item/attachable/attached_gun/extinguisher, VENDOR_ITEM_REGULAR),
 		list("Underbarrel Flashlight Grip", 9.5, /obj/item/attachable/flashlight/grip, VENDOR_ITEM_REGULAR),
 		list("Underslung Grenade Launcher", 9.5, /obj/item/attachable/attached_gun/grenade, VENDOR_ITEM_REGULAR),
+		list("Underbarrel Flare Launcher", 9.5, /obj/item/attachable/attached_gun/flare_launcher, VENDOR_ITEM_REGULAR),
 		list("Vertical Grip", 9.5, /obj/item/attachable/verticalgrip, VENDOR_ITEM_REGULAR),
 
 		list("STOCK", -1, null, null),
@@ -472,6 +477,7 @@
 	req_access = list()
 	req_one_access = list(ACCESS_MARINE_CARGO)
 	vendor_theme = VENDOR_THEME_USCM
+	vend_flags = VEND_CLUTTER_PROTECTION | VEND_LIMITED_INVENTORY | VEND_TO_HAND | VEND_UNIFORM_AUTOEQUIP
 
 	listed_products = list(
 		list("UNIFORM", -1, null, null),
@@ -589,7 +595,7 @@
 				S.remove_from_storage(item_to_stock, user.loc)
 
 			qdel(item_to_stock)
-			user.visible_message(SPAN_NOTICE("[user] stocks \the [src] with \a [R[1]]."),
+			user.visible_message(SPAN_NOTICE("[capitalize(user.declent_ru(NOMINATIVE))] stocks \the [src] with \a [R[1]]."),
 			SPAN_NOTICE("You stock \the [src] with \a [R[1]]."))
 			R[2]++
 			if(vend_flags & VEND_LOAD_AMMO_BOXES)
@@ -629,6 +635,7 @@
 		list("Rail Flashlight", floor(scale * 25), /obj/item/attachable/flashlight, VENDOR_ITEM_RECOMMENDED),
 		list("Underbarrel Flashlight Grip", floor(scale * 10), /obj/item/attachable/flashlight/grip, VENDOR_ITEM_RECOMMENDED),
 		list("Underslung Grenade Launcher", floor(scale * 25), /obj/item/attachable/attached_gun/grenade, VENDOR_ITEM_REGULAR), //They already get these as on-spawns, might as well formalize some spares.
+		list("Underbarrel Flare Launcher", floor(scale * 25), /obj/item/attachable/attached_gun/flare_launcher, VENDOR_ITEM_REGULAR),
 
 		list("UTILITIES", -1, null, null),
 		list("M07 Training Grenade", floor(scale * 15), /obj/item/explosive/grenade/high_explosive/training, VENDOR_ITEM_REGULAR),

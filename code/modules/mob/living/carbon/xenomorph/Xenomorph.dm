@@ -319,6 +319,8 @@
 
 	var/icon_xeno
 	var/icon_xenonid
+	var/xenonid_pixel_x
+	var/xenonid_pixel_y
 	/// Stores the overlay icon for spitting/drooling when acid-based abilities are selected
 	var/acid_overlay
 
@@ -627,18 +629,25 @@
 		name_client_postfix = client.xeno_postfix ? ("-"+client.xeno_postfix) : ""
 		age_xeno()
 	full_designation = "[name_client_prefix][nicknumber][name_client_postfix]"
-	if(!HAS_TRAIT(src, TRAIT_NO_COLOR))
-		color = in_hive.color
 
 	var/age_display = show_age_prefix ? age_prefix : ""
 	var/name_display = ""
 	// Rare easter egg
 	if(nicknumber == 666)
-		number_decorator = "Infernal "
+		number_decorator = "Адский "
 	if(show_name_numbers)
 		name_display = show_only_numbers ? " ([nicknumber])" : " ([name_client_prefix][nicknumber][name_client_postfix])"
 	name = "[name_prefix][number_decorator][age_display][declent_ru_initial(caste.display_name || caste.caste_type, NOMINATIVE, caste.display_name || caste.caste_type)][name_display]"
-	ru_names_rename(ru_names_toml(caste.display_name || caste.caste_type, prefix = "[name_prefix][number_decorator][age_display]", suffix = "[name_display]", override_base = name)) // BANDAMARINES ADDITION
+	ru_names_rename(ru_names_list(
+		base = name,
+		nominative = "[name_prefix][declent_ru_initial(number_decorator, NOMINATIVE, number_decorator)][declent_ru_initial(age_display, NOMINATIVE, age_display)][declent_ru_initial(caste.display_name || caste.caste_type, NOMINATIVE, caste.display_name || caste.caste_type)][name_display]",
+		genitive = "[name_prefix][declent_ru_initial(number_decorator, GENITIVE, number_decorator)][declent_ru_initial(age_display, GENITIVE, age_display)][declent_ru_initial(caste.display_name || caste.caste_type, GENITIVE, caste.display_name || caste.caste_type)][name_display]",
+		dative = "[name_prefix][declent_ru_initial(number_decorator, DATIVE, number_decorator)][declent_ru_initial(age_display, DATIVE, age_display)][declent_ru_initial(caste.display_name || caste.caste_type, DATIVE, caste.display_name || caste.caste_type)][name_display]",
+		accusative = "[name_prefix][declent_ru_initial(number_decorator, ACCUSATIVE, number_decorator)][declent_ru_initial(age_display, ACCUSATIVE, age_display)][declent_ru_initial(caste.display_name || caste.caste_type, ACCUSATIVE, caste.display_name || caste.caste_type)][name_display]",
+		instrumental = "[name_prefix][declent_ru_initial(number_decorator, INSTRUMENTAL, number_decorator)][declent_ru_initial(age_display, INSTRUMENTAL, age_display)][declent_ru_initial(caste.display_name || caste.caste_type, INSTRUMENTAL, caste.display_name || caste.caste_type)][name_display]",
+		prepositional = "[name_prefix][declent_ru_initial(number_decorator, PREPOSITIONAL, number_decorator)][declent_ru_initial(age_display, PREPOSITIONAL, age_display)][declent_ru_initial(caste.display_name || caste.caste_type, PREPOSITIONAL, caste.display_name || caste.caste_type)][name_display]",
+		gender = "[declent_ru_initial(caste.display_name || caste.caste_type, "gender", caste.display_name || caste.caste_type)]",
+	))
 
 	//Update linked data so they show up properly
 	change_real_name(src, name)
@@ -809,9 +818,12 @@
 		var/mob/living/carbon/human/H = puller
 		if(H.ally_of_hivenumber(hivenumber))
 			return TRUE
-		puller.apply_effect(rand(caste.tacklestrength_min,caste.tacklestrength_max), WEAKEN)
 		playsound(puller.loc, 'sound/weapons/pierce.ogg', 25, 1)
 		puller.visible_message(SPAN_WARNING("[puller] tried to pull [src] but instead gets a tail swipe to the head!"))
+		if(stealth)
+			puller.apply_effect(caste.tacklestrength_min, WEAKEN)
+			return FALSE
+		puller.apply_effect(rand(caste.tacklestrength_min,caste.tacklestrength_max), WEAKEN)
 		return FALSE
 	if(issynth(puller) && (mob_size >= 4 || istype(src, /mob/living/carbon/xenomorph/warrior)))
 		var/mob/living/carbon/human/synthetic/puller_synth = puller
@@ -1022,7 +1034,7 @@
 		caste.aura_strength = 0
 	if(aura_strength == 0 && current_aura)
 		current_aura = null
-		to_chat(src, SPAN_XENOWARNING("We lose our pheromones."))
+		to_chat(src, SPAN_XENOWARNING("Мы перестаём выделять феромоны."))
 
 	// Also recalculate received pheros now
 	for(var/capped_aura in received_phero_caps)
@@ -1111,9 +1123,9 @@
 	if(length(resin_build_order))
 		selected_resin = resin_build_order[1]
 
-/mob/living/carbon/xenomorph/ghostize(can_reenter_corpse = TRUE, aghosted = FALSE)
+/mob/living/carbon/xenomorph/ghostize(can_reenter_corpse = TRUE, aghosted = FALSE, transfer = FALSE)
 	. = ..()
-	if(. && !can_reenter_corpse && stat != DEAD && !QDELETED(src) && !should_block_game_interaction(src))
+	if(. && !can_reenter_corpse && !transfer && stat != DEAD && !QDELETED(src) && !should_block_game_interaction(src))
 		handle_ghost_message()
 	if(selected_ability)
 		selected_ability.action_deselect()

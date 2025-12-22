@@ -122,22 +122,6 @@
 		go_out()
 		return
 
-/obj/structure/machinery/medical_pod/autodoc/proc/heal_limb(mob/living/carbon/human/human, brute, burn)
-	var/list/obj/limb/parts = human.get_damaged_limbs(brute,burn)
-	if(!length(parts))
-		return
-	var/obj/limb/picked = pick(parts)
-	if(picked.status & (LIMB_ROBOT|LIMB_SYNTHSKIN))
-		picked.heal_damage(brute, burn, TRUE)
-		human.pain.apply_pain(-brute, BRUTE)
-		human.pain.apply_pain(-burn, BURN)
-	else
-		human.apply_damage(-brute, BRUTE, picked)
-		human.apply_damage(-burn, BURN, picked)
-
-	human.UpdateDamageIcon()
-	human.updatehealth()
-
 /obj/structure/machinery/medical_pod/autodoc/process()
 	set background = 1
 
@@ -176,7 +160,7 @@
 					visible_message("[icon2html(src, viewers(src))] \The <b>[src]</b> speaks: Blood transfusion complete.")
 			if(heal_brute)
 				if(occupant.getBruteLoss() > 0)
-					heal_limb(occupant, 3, 0)
+					occupant.heal_limb_damage(3, 0, robo_repair=TRUE)
 					if(prob(10))
 						visible_message("\The [src] whirrs and clicks as it stitches flesh together.")
 						to_chat(occupant, SPAN_INFO("You feel your wounds being stitched and sealed shut."))
@@ -185,7 +169,7 @@
 					visible_message("[icon2html(src, viewers(src))] \The <b>[src]</b> speaks: Trauma repair surgery complete.")
 			if(heal_burn)
 				if(occupant.getFireLoss() > 0)
-					heal_limb(occupant, 0, 3)
+					occupant.heal_limb_damage(0, 3, robo_repair=TRUE)
 					if(prob(10))
 						visible_message("\The [src] whirrs and clicks as it grafts synthetic skin.")
 						to_chat(occupant, SPAN_INFO("You feel your burned flesh being sliced away and replaced."))
@@ -699,6 +683,9 @@
 /obj/structure/machinery/autodoc_console/attackby(obj/item/with, mob/user)
 	if(istype(with, /obj/item/research_upgrades/autodoc))
 		var/obj/item/research_upgrades/autodoc/upgrd = with
+		if(!upgrd.value)
+			to_chat(user, SPAN_NOTICE("There is no data loaded in [upgrd]!"))
+			return
 		for(var/iter in upgrades)
 			if(iter == upgrd.value)
 				to_chat(user, SPAN_NOTICE("This data is already present in [src]!"))
@@ -725,7 +712,7 @@
 /obj/structure/machinery/autodoc_console/tgui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "Autodoc", capitalize(declent_ru())) // BANDAMARINES EDIT - Translation
+		ui = new(user, src, "Autodoc", capitalize(declent_ru(NOMINATIVE))) // BANDAMARINES EDIT - Translation
 		ui.open()
 
 /obj/structure/machinery/autodoc_console/ui_state(mob/user)
@@ -769,8 +756,8 @@
 			if(!(NO_BLOOD in human_occupant.species.flags))
 				occupantData["pulse"] = human_occupant.get_pulse(GETPULSE_TOOL)
 				occupantData["hasBlood"] = 1
-				occupantData["bloodType"] = occupant.blood_type // SS220 - EDIT ADDITTION
-				occupantData["bloodLevel"] = floor(occupant.blood_volume * 10) // SS220 - EDIT ADDITTION
+				occupantData["bloodType"] = occupant.blood_type // SS220 EDIT ADDICTION
+				occupantData["bloodLevel"] = floor(occupant.blood_volume * 10) // SS220 EDIT ADDICTION
 				occupantData["bloodMax"] = occupant.max_blood
 				occupantData["bloodPercent"] = round(100*(occupant.blood_volume/occupant.max_blood), 0.01)
 			if(!isnull(connected.generated_surgery_list) && connected.generated_surgery_list.len > 0)
@@ -918,7 +905,12 @@
 /obj/structure/machinery/autodoc_console/yautja
 	name = "medical pod console"
 	icon = 'icons/obj/structures/machinery/yautja_machines.dmi'
-	upgrades = list(1=1, 2=2, 3=3, 4=4)
+	upgrades = list(
+		RESEARCH_UPGRADE_TIER_1,
+		RESEARCH_UPGRADE_TIER_2,
+		RESEARCH_UPGRADE_TIER_3,
+		RESEARCH_UPGRADE_TIER_4,
+	)
 
 /obj/structure/machinery/medical_pod/autodoc/unskilled
 	name = "advanced autodoc emergency medical system"

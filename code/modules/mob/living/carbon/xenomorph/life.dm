@@ -18,7 +18,6 @@
 		zoom_out()
 
 	if(stat != DEAD) //Stop if dead. Performance boost
-
 		update_progression()
 
 		//Status updates, death etc.
@@ -34,6 +33,21 @@
 		handle_environment()
 		if(client)
 			handle_regular_hud_updates()
+			warn_away_timer()
+
+/mob/living/carbon/xenomorph/proc/warn_away_timer()
+	if(away_timer != XENO_LEAVE_TIMER - XENO_AVAILABLE_TIMER)
+		return
+	if(aghosted)
+		return
+	if(health <= 0)
+		return
+	var/area/area = get_area(src)
+	if(should_block_game_interaction(src) && (!area || !(area.flags_area & AREA_ALLOW_XENO_JOIN)))
+		return //xenos on admin z level don't count
+
+	to_chat(client, SPAN_ALERTWARNING("You are inactive and will be available to ghosts in [XENO_AVAILABLE_TIMER] second\s!"))
+	playsound_client(client, sound('sound/effects/xeno_evolveready.ogg'))
 
 /mob/living/carbon/xenomorph/proc/update_progression()
 	if(isnull(hive))
@@ -63,7 +77,7 @@
 			evolution_stored += progress_amount
 
 /mob/living/carbon/xenomorph/proc/evolve_message()
-	to_chat(src, SPAN_XENODANGER("Our carapace crackles and our tendons strengthen. We are ready to <a href='byond://?src=\ref[src];evolve=1;'>evolve</a>!")) //Makes this bold so the Xeno doesn't miss it
+	to_chat(src, SPAN_XENODANGER("Наш панцирь трещит, а сухожилия укрепляются. Мы готовы <a href='byond://?src=\ref[src];evolve=1;'>эволюционировать</a>!")) //Makes this bold so the Xeno doesn't miss it // SS220 EDIT ADDICTION
 	playsound_client(client, sound('sound/effects/xeno_evolveready.ogg'))
 
 	var/datum/action/xeno_action/onclick/evolve/evolve_action = new()

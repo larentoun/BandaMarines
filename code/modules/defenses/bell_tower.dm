@@ -265,12 +265,12 @@
 		STOP_PROCESSING(SSobj, src)
 		return
 
-	var/list/targets = SSquadtree.players_in_range(SQUARE(M.x, M.y, area_range), M.z, QTREE_SCAN_MOBS | QTREE_EXCLUDE_OBSERVER)
+	var/list/targets = SSquadtree.players_in_range(SQUARE(M.x, M.y, area_range), M.z, QTREE_SCAN_MOBS | QTREE_FILTER_LIVING)
 	if(!targets)
 		return
 
 	for(var/mob/living/carbon/xenomorph/X in targets)
-		to_chat(X, SPAN_XENOWARNING("Augh! You are slowed by the incessant ringing!"))
+		to_chat(X, SPAN_XENOWARNING("Аааа! Вас дезориентирует непрекращающийся звон!"))
 		X.set_effect(slowdown_amount, SUPERSLOW)
 		playsound(X, 'sound/misc/bell.ogg', 25, 0, 13)
 

@@ -37,9 +37,9 @@
 	value = 2
 
 /datum/chem_property/positive/anticorrosive/process(mob/living/M, potency = 1)
-	M.heal_limb_damage(0, potency)
+	M.heal_limb_damage(0, potency, chemical = TRUE)
 	if(potency > CREATE_MAX_TIER_1)
-		M.heal_limb_damage(0, potency * POTENCY_MULTIPLIER_LOW)
+		M.heal_limb_damage(0, potency * POTENCY_MULTIPLIER_LOW, chemical = TRUE)
 
 /datum/chem_property/positive/anticorrosive/process_overdose(mob/living/M, potency = 1, delta_time)
 	M.apply_damages(0.5 * potency * delta_time, 0, 0.5 * potency * delta_time) //Mixed brute/tox damage
@@ -731,7 +731,7 @@
 		var/mob/dead/observer/ghost = dead.get_ghost()
 		if(ghost?.client)
 			playsound_client(ghost.client, 'sound/effects/adminhelp_new.ogg')
-			to_chat(ghost, SPAN_BOLDNOTICE("Your heart is struggling to pump! There is a chance you might get up!(Verbs -> Ghost -> Re-enter corpse, or <a href='byond://?src=\ref[ghost];reentercorpse=1'>click here!</a>)"))
+			to_chat(ghost, SPAN_BOLDNOTICE("Your heart is struggling to pump! There is a chance you might get up!(Look for 'Re-enter Corpse' in Ghost verbs, or <a href='byond://?src=\ref[ghost];reentercorpse=1'>click here!</a>)"))
 	else if ((potency >= 1) && dead.health <= HEALTH_THRESHOLD_DEAD) //heals on all level above 1. This is however, minimal.
 		to_chat(dead, SPAN_NOTICE("You feel a faint spark in your chest."))
 		dead.apply_damage(-potency * POTENCY_MULTIPLIER_VLOW, BRUTE)
